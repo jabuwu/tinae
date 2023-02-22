@@ -25,7 +25,7 @@ macro_rules! features {
         }
 
         pub mod prelude {
-            pub use super::TinaePlugins;
+            pub use super::{TinaePlugins, Persistent};
             $(
                 pub use super::$mod::prelude::*;
             )+
@@ -35,6 +35,10 @@ macro_rules! features {
 
 features!(
     ("tinae_cursor", cursor, CursorPlugin),
+    ("tinae_force_ratio", force_ratio, ForceRatioPlugin),
     ("tinae_screen_fade", screen_fade, ScreenFadePlugin),
     ("tinae_transform2", transform2, Transform2Plugin)
 );
+
+#[derive(Component)]
+pub struct Persistent;

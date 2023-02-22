@@ -6,7 +6,10 @@ use std::{
 
 use bevy::prelude::*;
 
-use crate::transform2::{Depth, Transform2};
+use crate::{
+    transform2::{Depth, Transform2},
+    Persistent,
+};
 
 pub struct ScreenFadePlugin;
 
@@ -96,6 +99,7 @@ fn screen_fade_spawn(mut commands: Commands) {
         Transform2::new().with_scale(Vec2::splat(100000.)),
         Depth::Exact(1.),
         ScreenFadeEntity,
+        Persistent,
     ));
 }
 
