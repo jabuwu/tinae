@@ -1,0 +1,13 @@
+[package]
+name = "tinae"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.9.1"
+lerp = "0.4"
+
+[features]
+default = [ "tinae_cursor", "tinae_transform2" ]
+tinae_cursor = []
+tinae_transform2 = []
