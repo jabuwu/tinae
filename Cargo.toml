@@ -8,6 +8,7 @@ bevy = "0.9.1"
 lerp = "0.4"
 
 [features]
-default = [ "tinae_cursor", "tinae_transform2" ]
+default = [ "tinae_cursor", "tinae_screen_fade", "tinae_transform2" ]
 tinae_cursor = []
+tinae_screen_fade = [ "tinae_transform2" ]
 tinae_transform2 = []

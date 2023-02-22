@@ -35,5 +35,6 @@ macro_rules! features {
 
 features!(
     ("tinae_cursor", cursor, CursorPlugin),
+    ("tinae_screen_fade", screen_fade, ScreenFadePlugin),
     ("tinae_transform2", transform2, Transform2Plugin)
 );
