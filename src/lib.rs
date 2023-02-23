@@ -27,6 +27,7 @@ macro_rules! features {
         pub mod prelude {
             pub use super::{TinaePlugins, Persistent};
             $(
+                #[cfg(feature = $feature)]
                 pub use super::$mod::prelude::*;
             )+
         }
@@ -40,6 +41,7 @@ features!(
     ("tinae_flow", flow, FlowPlugin),
     ("tinae_force_ratio", force_ratio, ForceRatioPlugin),
     ("tinae_geometry", geometry, GeometryPlugin),
+    ("tinae_scenes", scenes, ScenesPlugin),
     ("tinae_screen_fade", screen_fade, ScreenFadePlugin),
     ("tinae_spine", spine, SpinePlugin),
     ("tinae_time_to_live", time_to_live, TimeToLivePlugin),
