@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use lerp::Lerp;
-use tinae::{prelude::*, transform2::Depth};
+use tinae::prelude::*;
 
 fn main() {
     App::new()
