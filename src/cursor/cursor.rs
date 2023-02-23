@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum CursorSystem {
     Position,
 }
@@ -9,9 +9,10 @@ pub struct CursorPlugin;
 
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Cursor>().add_system_to_stage(
-            CoreStage::PreUpdate,
-            cursor_position.label(CursorSystem::Position),
+        app.init_resource::<Cursor>().add_system(
+            cursor_position
+                .in_set(CursorSystem::Position)
+                .in_base_set(CoreSet::PreUpdate),
         );
     }
 }
@@ -23,10 +24,10 @@ pub struct Cursor {
 
 fn cursor_position(
     mut cursor: ResMut<Cursor>,
-    windows: Res<Windows>,
+    window_query: Query<&Window>,
     camera: Query<(&Camera, &GlobalTransform)>,
 ) {
-    if let Some(window) = windows.get_primary() {
+    if let Some(window) = window_query.get_single().ok() {
         if let Some(position) = window.cursor_position() {
             if let Ok((camera, camera_transform)) = camera.get_single() {
                 let window_size = Vec2::new(window.width() as f32, window.height() as f32);

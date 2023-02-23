@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum TimeToLiveSystem {
     Update,
 }
@@ -11,9 +11,10 @@ pub struct TimeToLivePlugin;
 
 impl Plugin for TimeToLivePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(
-            CoreStage::PostUpdate,
-            time_to_live_update.label(TimeToLiveSystem::Update),
+        app.add_system(
+            time_to_live_update
+                .in_set(TimeToLiveSystem::Update)
+                .in_base_set(CoreSet::PostUpdate),
         );
     }
 }

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::transform::TransformSystem;
 use lerp::Lerp;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum Transform2System {
     TransformPropagate,
 }
@@ -11,10 +11,10 @@ pub struct Transform2Plugin;
 
 impl Plugin for Transform2Plugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(
-            CoreStage::PostUpdate,
+        app.add_system(
             update_transform2
-                .label(Transform2System::TransformPropagate)
+                .in_set(Transform2System::TransformPropagate)
+                .in_base_set(CoreSet::PostUpdate)
                 .before(TransformSystem::TransformPropagate),
         );
     }

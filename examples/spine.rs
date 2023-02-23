@@ -7,7 +7,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system(on_ready)
+        .add_system(on_ready.in_set(SpineSet::OnReady))
         .run();
 }
 

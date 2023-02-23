@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.9.1"
+bevy = { git = "https://github.com/bevyengine/bevy", rev = "978f7cd8bf9423961f663725cba18fb3ed75b46d" }
 lerp = "0.4"
-bevy_spine = { version = "0.4", optional = true }
+bevy_spine = { git = "https://github.com/jabuwu/bevy_spine", rev = "43fa8c6a959315d9906f1a8b09e3ebf66f670ac5", optional = true }
 tinae_macros = { path = "./macros" }
 
 [features]

@@ -4,7 +4,7 @@ use crate::Persistent;
 
 const RATIO_BAR_SIZE: f32 = 100000.;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum ForceRatioSystem {
     Setup,
     Update,
@@ -15,11 +15,11 @@ pub struct ForceRatioPlugin;
 impl Plugin for ForceRatioPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ForceRatio>()
-            .add_startup_system(force_ratio_setup.label(ForceRatioSystem::Setup))
-            .add_system_to_stage(
-                CoreStage::PostUpdate,
+            .add_startup_system(force_ratio_setup.in_set(ForceRatioSystem::Setup))
+            .add_system(
                 force_ratio_update
-                    .label(ForceRatioSystem::Update)
+                    .in_set(ForceRatioSystem::Update)
+                    .in_base_set(CoreSet::PostUpdate)
                     .before(TransformSystem::TransformPropagate),
             );
     }
@@ -46,9 +46,9 @@ pub enum ForceRatioBar {
 impl ForceRatioBar {
     fn visibility(&self, force_ratio: &ForceRatio) -> Visibility {
         if matches!(force_ratio, &ForceRatio::Disabled) {
-            Visibility::INVISIBLE
+            Visibility::Hidden
         } else {
-            Visibility::VISIBLE
+            Visibility::Inherited
         }
     }
     fn translation(&self, force_ratio: &ForceRatio) -> Vec3 {
@@ -93,11 +93,11 @@ fn force_ratio_update(
     mut visibility_query: Query<&mut Visibility>,
     camera_query: Query<Entity, With<Camera>>,
     bar_query: Query<(Entity, &ForceRatioBar)>,
-    windows: Res<Windows>,
+    window_query: Query<&Window>,
     force_ratio: Res<ForceRatio>,
 ) {
     if let ForceRatio::Enabled { width, height } = force_ratio.as_ref() {
-        if let Some(window) = windows.get_primary() {
+        if let Some(window) = window_query.get_single().ok() {
             for camera_entity in camera_query.iter() {
                 if let Some(mut camera_transform) = transform_query.get_mut(camera_entity).ok() {
                     let ratio = window.width() / window.height();

@@ -1,7 +1,7 @@
-use std::marker::PhantomData;
+use std::{fmt::Debug, hash::Hash, marker::PhantomData};
 
 use bevy::prelude::*;
-use bevy_spine::{prelude::*, SpineSynchronizerSystem};
+use bevy_spine::{prelude::*, SpineSynchronizerSet, SpineSynchronizerSystem};
 
 use crate::transform2::Transform2;
 
@@ -38,28 +38,34 @@ impl<T: Component> Default for SpineSynchronizer2Plugin<T> {
     }
 }
 
-impl<T: Component> Plugin for SpineSynchronizer2Plugin<T> {
+impl<T: Component + Clone + Copy + Debug + PartialEq + Eq + Hash> Plugin
+    for SpineSynchronizer2Plugin<T>
+{
     fn build(&self, app: &mut App) {
         app.add_system(
             spine_sync_entities_2::<T>
-                .label(SpineSynchronizerSystem::<T>::SyncEntities)
-                .after(SpineSystem::Update),
+                .in_set(SpineSynchronizerSystem::<T>::SyncEntities)
+                .after(SpineSystem::Update)
+                .after(SpineSynchronizerSet::<T>::BeforeSync)
+                .before(SpineSynchronizerSet::<T>::DuringSync),
         )
         .add_system(
             spine_sync_bones_2::<T>
-                .label(SpineSynchronizerSystem::<T>::SyncBones)
-                .after(SpineSynchronizerSystem::<T>::SyncEntities),
+                .in_set(SpineSynchronizerSystem::<T>::SyncBones)
+                .after(SpineSynchronizerSystem::<T>::SyncEntities)
+                .after(SpineSynchronizerSet::<T>::DuringSync),
         )
         .add_system(
             spine_sync_entities_applied_2::<T>
-                .label(SpineSynchronizerSystem::<T>::SyncEntitiesApplied)
+                .in_set(SpineSynchronizerSystem::<T>::SyncEntitiesApplied)
                 .after(SpineSynchronizerSystem::<T>::SyncBones)
+                .before(SpineSynchronizerSet::<T>::AfterSync)
                 .before(SpineSystem::Render),
         );
     }
 }
 
-pub fn spine_sync_entities_2<S: Component>(
+pub fn spine_sync_entities_2<S: Component + Clone + Copy + Debug + PartialEq + Eq + Hash>(
     mut bone_query: Query<(&mut Transform2, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
@@ -76,7 +82,7 @@ pub fn spine_sync_entities_2<S: Component>(
     }
 }
 
-pub fn spine_sync_bones_2<S: Component>(
+pub fn spine_sync_bones_2<S: Component + Clone + Copy + Debug + PartialEq + Eq + Hash>(
     mut bone_query: Query<(&mut Transform2, &SpineBone)>,
     mut spine_query: Query<&mut Spine, With<S>>,
 ) {
@@ -96,7 +102,9 @@ pub fn spine_sync_bones_2<S: Component>(
     }
 }
 
-pub fn spine_sync_entities_applied_2<S: Component>(
+pub fn spine_sync_entities_applied_2<
+    S: Component + Clone + Copy + Debug + PartialEq + Eq + Hash,
+>(
     mut bone_query: Query<(&mut Transform2, &SpineBone)>,
     spine_query: Query<&Spine, With<S>>,
 ) {
@@ -113,8 +121,9 @@ pub fn spine_sync_entities_applied_2<S: Component>(
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Copy, Clone, PartialEq, Eq, Default, Debug, Hash)]
 pub struct SpineSync2;
 
 pub type SpineSync2System = SpineSynchronizerSystem<SpineSync2>;
+pub type SpineSync2Set = SpineSynchronizerSet<SpineSync2>;
 pub type SpineSync2Plugin = SpineSynchronizer2Plugin<SpineSync2>;
