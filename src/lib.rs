@@ -36,6 +36,7 @@ macro_rules! features {
 features!(
     ("tinae_asset_struct", asset_struct, AssetStructPlugin),
     ("tinae_cursor", cursor, CursorPlugin),
+    ("tinae_fixed_timestep", fixed_timestep, FixedTimestepPlugin),
     ("tinae_force_ratio", force_ratio, ForceRatioPlugin),
     ("tinae_geometry", geometry, GeometryPlugin),
     ("tinae_screen_fade", screen_fade, ScreenFadePlugin),

@@ -8,7 +8,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system(spawn)
+        .add_system_to_schedule(CoreSchedule::FixedUpdate, spawn)
         .run();
 }
 
@@ -16,7 +16,7 @@ fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn spawn(mut commands: Commands, mouse_buttons: Res<Input<MouseButton>>, cursor: Res<Cursor>) {
+fn spawn(mut commands: Commands, mouse_buttons: Res<FixedInput<MouseButton>>, cursor: Res<Cursor>) {
     if mouse_buttons.just_pressed(MouseButton::Left) {
         commands.spawn((
             SpriteBundle {

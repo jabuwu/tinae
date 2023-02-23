@@ -7,7 +7,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system(movement)
+        .add_system_to_schedule(CoreSchedule::FixedUpdate, movement)
         .add_system(y_order)
         .run();
 }
@@ -95,7 +95,7 @@ fn setup(mut commands: Commands) {
 fn movement(
     mut movement_query: Query<&mut Transform2, With<Movement>>,
     keys: Res<Input<KeyCode>>,
-    time: Res<Time>,
+    time: Res<FixedTime>,
 ) {
     let mut movement = Vec2::ZERO;
 
@@ -114,7 +114,7 @@ fn movement(
 
     for mut movement_transform in movement_query.iter_mut() {
         movement_transform.translation +=
-            movement.normalize_or_zero() * time.delta_seconds() * 300.;
+            movement.normalize_or_zero() * time.period.as_secs_f32() * 300.;
     }
 }
 

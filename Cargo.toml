@@ -10,12 +10,13 @@ bevy_spine = { git = "https://github.com/jabuwu/bevy_spine", rev = "43fa8c6a9593
 tinae_macros = { path = "./macros" }
 
 [features]
-default = ["tinae_asset_struct", "tinae_cursor", "tinae_force_ratio", "tinae_geometry", "tinae_screen_fade", "tinae_spine", "tinae_time_to_live", "tinae_transform2"]
+default = ["tinae_asset_struct", "tinae_cursor", "tinae_fixed_timestep", "tinae_force_ratio", "tinae_geometry", "tinae_screen_fade", "tinae_spine", "tinae_time_to_live", "tinae_transform2"]
 tinae_asset_struct = []
 tinae_cursor = []
+tinae_fixed_timestep = []
 tinae_force_ratio = ["tinae_transform2"]
 tinae_geometry = ["tinae_transform2"]
-tinae_screen_fade = []
+tinae_screen_fade = ["tinae_fixed_timestep"]
 tinae_spine = ["bevy_spine", "tinae_transform2"]
-tinae_time_to_live = []
+tinae_time_to_live = ["tinae_fixed_timestep"]
 tinae_transform2 = []

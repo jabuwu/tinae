@@ -7,6 +7,7 @@ use std::{
 use bevy::prelude::*;
 
 use crate::{
+    fixed_timestep::AddFixedEvent,
     transform2::{Depth, Transform2},
     Persistent,
 };
@@ -16,7 +17,7 @@ pub struct ScreenFadePlugin;
 impl Plugin for ScreenFadePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ScreenFade>()
-            .add_event::<ScreenFadeOutEvent>()
+            .add_fixed_event::<ScreenFadeOutEvent>()
             .add_startup_system(screen_fade_spawn)
             .add_system(screen_fade_update);
     }

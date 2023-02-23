@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
+use crate::fixed_timestep::CoreFixedSet;
+
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum TimeToLiveSystem {
     Update,
@@ -11,10 +13,11 @@ pub struct TimeToLivePlugin;
 
 impl Plugin for TimeToLivePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(
+        app.add_system_to_schedule(
+            CoreSchedule::FixedUpdate,
             time_to_live_update
                 .in_set(TimeToLiveSystem::Update)
-                .in_base_set(CoreSet::PostUpdate),
+                .in_base_set(CoreFixedSet::PostUpdate),
         );
     }
 }
@@ -34,8 +37,8 @@ impl TimeToLive {
 
 fn time_to_live_update(
     mut time_to_live_query: Query<(Entity, &mut TimeToLive)>,
-    time: Res<Time>,
     mut commands: Commands,
+    time: Res<FixedTime>,
 ) {
     for (time_to_live_entity, mut time_to_live) in time_to_live_query.iter_mut() {
         if time_to_live.alive_time <= 0. {
@@ -43,6 +46,6 @@ fn time_to_live_update(
                 entity_commands.despawn_recursive();
             }
         }
-        time_to_live.alive_time -= time.delta_seconds();
+        time_to_live.alive_time -= time.period.as_secs_f32();
     }
 }
