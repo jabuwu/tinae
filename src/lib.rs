@@ -38,6 +38,7 @@ features!(
     ("tinae_force_ratio", force_ratio, ForceRatioPlugin),
     ("tinae_geometry", geometry, GeometryPlugin),
     ("tinae_screen_fade", screen_fade, ScreenFadePlugin),
+    ("tinae_time_to_live", time_to_live, TimeToLivePlugin),
     ("tinae_transform2", transform2, Transform2Plugin)
 );
 
