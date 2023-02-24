@@ -10,5 +10,5 @@ mod asset_struct;
 pub use asset_struct::*;
 
 pub mod prelude {
-    pub use super::AssetStruct;
+    pub use super::{AssetStruct, AssetStructStatus};
 }
