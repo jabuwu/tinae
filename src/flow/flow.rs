@@ -11,7 +11,13 @@ pub struct FlowPlugin;
 impl Plugin for FlowPlugin {
     fn build(&self, app: &mut App) {
         app.configure_set(FlowSet::MechanicUpdate.before(FlowSet::EntityUpdate))
-            .configure_set(FlowSet::EntityUpdate.before(FlowSet::EntitySpawn));
+            .configure_set(FlowSet::EntityUpdate.before(FlowSet::EntitySpawn))
+            .configure_set(
+                FlowSet::VisualUpdate
+                    .after(CoreSet::FixedUpdate)
+                    .after(CoreSet::UpdateFlush)
+                    .before(CoreSet::PostUpdate),
+            );
     }
 }
 
@@ -21,6 +27,7 @@ pub enum FlowSet {
     MechanicUpdate,
     EntityUpdate,
     EntitySpawn,
+    VisualUpdate,
 }
 
 #[derive(Copy, SystemSet)]

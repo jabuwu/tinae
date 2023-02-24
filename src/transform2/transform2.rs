@@ -2,9 +2,12 @@ use bevy::prelude::*;
 use bevy::transform::TransformSystem;
 use lerp::Lerp;
 
+use crate::fixed_timestep::CoreFixedSet;
+
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
 pub enum Transform2System {
     TransformPropagate,
+    TransformVisualPropagate,
 }
 
 pub struct Transform2Plugin;
@@ -16,6 +19,12 @@ impl Plugin for Transform2Plugin {
                 .in_set(Transform2System::TransformPropagate)
                 .in_base_set(CoreSet::PostUpdate)
                 .before(TransformSystem::TransformPropagate),
+        )
+        .add_system_to_schedule(
+            CoreSchedule::FixedUpdate,
+            update_visual_transform2
+                .in_set(Transform2System::TransformVisualPropagate)
+                .in_base_set(CoreFixedSet::PostUpdate),
         );
     }
 }
@@ -86,24 +95,45 @@ impl Depth {
     }
 }
 
+#[derive(Component, Debug, Clone, Copy, Deref, DerefMut)]
+pub struct VisualTransform2(pub Transform2);
+
 fn update_transform2(
     root_query: Query<Entity, Without<Parent>>,
     children_query: Query<&Children>,
-    mut transform_query: Query<(&mut Transform, Option<&Transform2>, Option<&Depth>)>,
+    mut transform_query: Query<(
+        &mut Transform,
+        Option<&Transform2>,
+        Option<&VisualTransform2>,
+        Option<&Depth>,
+    )>,
 ) {
     for root in root_query.iter() {
         update_transform2_recursive(root, &children_query, &mut transform_query, 0.);
     }
 }
 
+fn update_visual_transform2(mut transform_query: Query<(&mut VisualTransform2, &mut Transform2)>) {
+    for (mut visual_transform, transform) in transform_query.iter_mut() {
+        visual_transform.0 = transform.clone();
+    }
+}
+
 fn update_transform2_recursive(
     entity: Entity,
     children_query: &Query<&Children>,
-    transform_query: &mut Query<(&mut Transform, Option<&Transform2>, Option<&Depth>)>,
+    transform_query: &mut Query<(
+        &mut Transform,
+        Option<&Transform2>,
+        Option<&VisualTransform2>,
+        Option<&Depth>,
+    )>,
     mut cumulative_depth: f32,
 ) {
-    if let Some((mut transform, transform2, depth_layer)) = transform_query.get_mut(entity).ok() {
-        if let Some(transform2) = transform2 {
+    if let Some((mut transform, transform2, visual_transform2, depth_layer)) =
+        transform_query.get_mut(entity).ok()
+    {
+        if let Some(transform2) = visual_transform2.map(|vt| &vt.0).or_else(|| transform2) {
             transform.translation.x = transform2.translation.x;
             transform.translation.y = transform2.translation.y;
             transform.scale = Vec3::new(transform2.scale.x, transform2.scale.y, 1.0);
