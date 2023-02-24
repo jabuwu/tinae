@@ -155,22 +155,21 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
                 #(#status_quotes)*
                 let total = handles.len();
                 let mut loaded = 0;
+                let mut loading = false;
                 for handle in handles.into_iter() {
                     match #status_asset_server.get_load_state(handle) {
-                        bevy::asset::LoadState::NotLoaded => {
-                            //return tinae::asset_struct::AssetStructStatus::NotLoaded;
-                        }
-                        bevy::asset::LoadState::Loading => {}
-                        bevy::asset::LoadState::Loaded => { loaded += 1; }
+                        bevy::asset::LoadState::Loaded => { loaded += 1; loading = true; }
                         bevy::asset::LoadState::Failed => {
-                            //return tinae::asset_struct::AssetStructStatus::Failed;
+                            return tinae::asset_struct::AssetStructStatus::Failed;
                         }
-                        bevy::asset::LoadState::Unloaded => {
-                            //return tinae::asset_struct::AssetStructStatus::NotLoaded;
-                        }
+                        bevy::asset::LoadState::NotLoaded => {}
+                        bevy::asset::LoadState::Loading => {}
+                        bevy::asset::LoadState::Unloaded => {}
                     }
                 }
-                if loaded == total {
+                if !loading {
+                    tinae::asset_struct::AssetStructStatus::NotLoaded
+                } else if loaded == total {
                     tinae::asset_struct::AssetStructStatus::Loaded
                 } else {
                     tinae::asset_struct::AssetStructStatus::Loading { progress: loaded as f32 / total as f32 }
