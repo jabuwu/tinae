@@ -1,9 +1,13 @@
 use std::{fmt::Debug, hash::Hash, marker::PhantomData};
 
-use bevy::prelude::*;
-use bevy_spine::{prelude::*, SpineSynchronizerSet, SpineSynchronizerSystem};
+use bevy::{asset::HandleId, prelude::*};
+use bevy_spine::{
+    prelude::*,
+    textures::{SpineTextureCreateEvent, SpineTextureDisposeEvent},
+    SkeletonDataKind, SpineSynchronizerSet, SpineSynchronizerSystem,
+};
 
-use crate::transform2::Transform2;
+use crate::{prelude::SubAssets, transform2::Transform2};
 
 pub struct SpinePlugin;
 
@@ -11,7 +15,8 @@ impl Plugin for SpinePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(bevy_spine::SpinePlugin)
             .add_plugin(SpineSync2Plugin::default())
-            .add_system(spine_attach_transform2);
+            .add_system(spine_attach_transform2.in_set(SpineSet::OnReady))
+            .add_system(spine_sub_assets.after(SpineSystem::Load));
     }
 }
 
@@ -127,3 +132,44 @@ pub struct SpineSync2;
 pub type SpineSync2System = SpineSynchronizerSystem<SpineSync2>;
 pub type SpineSync2Set = SpineSynchronizerSet<SpineSync2>;
 pub type SpineSync2Plugin = SpineSynchronizer2Plugin<SpineSync2>;
+
+#[derive(Default)]
+pub struct SpineSubAssets {
+    skeleton_datas: Vec<HandleId>,
+}
+
+fn spine_sub_assets(
+    mut local: Local<SpineSubAssets>,
+    mut spine_texture_create_events: EventReader<SpineTextureCreateEvent>,
+    mut spine_texture_dispose_events: EventReader<SpineTextureDisposeEvent>,
+    mut sub_assets: ResMut<SubAssets>,
+    skeleton_data_assets: Res<Assets<SkeletonData>>,
+) {
+    for spine_texture_create_event in spine_texture_create_events.iter() {
+        sub_assets.add(
+            spine_texture_create_event.atlas.id(),
+            spine_texture_create_event.handle.id(),
+        );
+    }
+    for spine_texture_dispose_event in spine_texture_dispose_events.iter() {
+        sub_assets.remove_all(spine_texture_dispose_event.handle.id());
+    }
+    if skeleton_data_assets.is_changed() {
+        for skeleton_data in local.skeleton_datas.iter() {
+            sub_assets.clear(*skeleton_data);
+        }
+        local.skeleton_datas.clear();
+        for (handle_id, skeleton_data) in skeleton_data_assets.iter() {
+            sub_assets.add(handle_id, skeleton_data.atlas_handle.id());
+            match &skeleton_data.kind {
+                SkeletonDataKind::BinaryFile(binary) => {
+                    sub_assets.add(handle_id, binary.id());
+                }
+                SkeletonDataKind::JsonFile(json) => {
+                    sub_assets.add(handle_id, json.id());
+                }
+            }
+            local.skeleton_datas.push(handle_id);
+        }
+    }
+}

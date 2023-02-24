@@ -6,12 +6,12 @@ edition = "2021"
 [dependencies]
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "978f7cd8bf9423961f663725cba18fb3ed75b46d" }
 lerp = "0.4"
-bevy_spine = { git = "https://github.com/jabuwu/bevy_spine", rev = "43fa8c6a959315d9906f1a8b09e3ebf66f670ac5", optional = true }
+bevy_spine = { git = "https://github.com/jabuwu/bevy_spine", rev = "3e0086cc7f0ca4b1a54f2973bbd6da30274aa63f", optional = true }
 tinae_macros = { path = "./macros" }
 
 [features]
 default = ["tinae_asset_struct", "tinae_cursor", "tinae_fixed_timestep", "tinae_flow", "tinae_force_ratio", "tinae_geometry", "tinae_scenes", "tinae_screen_fade", "tinae_spine", "tinae_time_to_live", "tinae_transform2"]
-tinae_asset_struct = []
+tinae_asset_struct = ["tinae_sub_assets"]
 tinae_cursor = []
 tinae_fixed_timestep = []
 tinae_flow = []
@@ -19,6 +19,7 @@ tinae_force_ratio = ["tinae_transform2"]
 tinae_geometry = ["tinae_transform2"]
 tinae_scenes = []
 tinae_screen_fade = ["tinae_fixed_timestep"]
-tinae_spine = ["bevy_spine", "tinae_transform2"]
+tinae_spine = ["bevy_spine", "tinae_transform2", "tinae_sub_assets"]
+tinae_sub_assets = []
 tinae_time_to_live = ["tinae_fixed_timestep"]
 tinae_transform2 = []

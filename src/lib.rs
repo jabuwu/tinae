@@ -44,6 +44,7 @@ features!(
     ("tinae_scenes", scenes, ScenesPlugin),
     ("tinae_screen_fade", screen_fade, ScreenFadePlugin),
     ("tinae_spine", spine, SpinePlugin),
+    ("tinae_sub_assets", sub_assets, SubAssetsPlugin),
     ("tinae_time_to_live", time_to_live, TimeToLivePlugin),
     ("tinae_transform2", transform2, Transform2Plugin)
 );
