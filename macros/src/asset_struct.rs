@@ -116,7 +116,7 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
                             });
                         } else {
                             load_quotes.push(quote! {
-                                self.#field_ident = #skeletons.add(bevy_spine::SkeletonData::new_from_json(
+                                self.#field_ident = #skeletons.add(bevy_spine::SkeletonData::new_from_binary(
                                     #asset_server.load(#skeleton),
                                     #asset_server.load(#atlas),
                                 ));
