@@ -19,7 +19,7 @@ impl Plugin for FixedTimestepPlugin {
             schedule.set_default_base_set(CoreFixedSet::Update);
         }
         app.add_plugin(FixedInputPlugin)
-            .insert_resource(FixedTime::new_from_secs(1. / 100.));
+            .insert_resource(FixedTime::new_from_secs(1. / 120.));
     }
 }
 

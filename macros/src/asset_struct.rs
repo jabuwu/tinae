@@ -45,9 +45,10 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
     let mut load_quotes = vec![];
-    let mut status_quotes = vec![];
+    let mut unload_quotes = vec![];
+    let mut handles_quotes = vec![];
     let mut load_dependencies = WorldDependencies::new();
-    let mut status_dependencies = WorldDependencies::new();
+    let mut handles_dependencies = WorldDependencies::new();
     match input.data {
         Data::Struct(asset_struct) => {
             for field in asset_struct.fields.iter() {
@@ -88,11 +89,18 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
                         });
                     }
 
-                    // status()
+                    // unload()
                     {
-                        let sub_assets = status_dependencies
+                        unload_quotes.push(quote! {
+                            self.#field_ident = Default::default();
+                        });
+                    }
+
+                    // handles()
+                    {
+                        let sub_assets = handles_dependencies
                             .depend_on(quote! { Res<tinae::sub_assets::SubAssets>});
-                        status_quotes.push(quote! {
+                        handles_quotes.push(quote! {
                             handles.insert(self.#field_ident.id());
                             for child in #sub_assets.children(self.#field_ident.id()).iter() {
                                 handles.insert(*child);
@@ -124,11 +132,18 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
                         }
                     }
 
-                    // status()
+                    // unload()
                     {
-                        let sub_assets = status_dependencies
+                        unload_quotes.push(quote! {
+                            self.#field_ident = Default::default();
+                        });
+                    }
+
+                    // handles()
+                    {
+                        let sub_assets = handles_dependencies
                             .depend_on(quote! { Res<tinae::sub_assets::SubAssets>});
-                        status_quotes.push(quote! {
+                        handles_quotes.push(quote! {
                             for child in #sub_assets.children(self.#field_ident.id()).iter() {
                                 handles.insert(*child);
                             }
@@ -139,41 +154,22 @@ pub fn derive_asset_struct(input: TokenStream) -> TokenStream {
         }
         _ => {}
     }
-    let status_asset_server =
-        status_dependencies.depend_on(quote! { Res<bevy::asset::AssetServer>});
     let load_dependencies = load_dependencies.tokens(Ident::new("world", Span::call_site()));
-    let status_dependencies = status_dependencies.tokens(Ident::new("world", Span::call_site()));
+    let handles_dependencies = handles_dependencies.tokens(Ident::new("world", Span::call_site()));
     let expanded = quote! {
         impl tinae::asset_struct::AssetStruct for #name {
             fn load(&mut self, world: &mut bevy::ecs::world::World) {
                 #load_dependencies
                 #(#load_quotes)*
             }
-            fn status(&mut self, world: &mut bevy::ecs::world::World) -> tinae::asset_struct::AssetStructStatus {
-                #status_dependencies
+            fn unload(&mut self) {
+                #(#unload_quotes)*
+            }
+            fn handles(&self, world: &mut bevy::ecs::world::World) -> Vec<bevy::asset::HandleId> {
+                #handles_dependencies
                 let mut handles: std::collections::HashSet<bevy::asset::HandleId> = std::collections::HashSet::new();
-                #(#status_quotes)*
-                let total = handles.len();
-                let mut loaded = 0;
-                let mut loading = false;
-                for handle in handles.into_iter() {
-                    match #status_asset_server.get_load_state(handle) {
-                        bevy::asset::LoadState::Loaded => { loaded += 1; loading = true; }
-                        bevy::asset::LoadState::Failed => {
-                            return tinae::asset_struct::AssetStructStatus::Failed;
-                        }
-                        bevy::asset::LoadState::NotLoaded => {}
-                        bevy::asset::LoadState::Loading => {}
-                        bevy::asset::LoadState::Unloaded => {}
-                    }
-                }
-                if !loading {
-                    tinae::asset_struct::AssetStructStatus::NotLoaded
-                } else if loaded == total {
-                    tinae::asset_struct::AssetStructStatus::Loaded
-                } else {
-                    tinae::asset_struct::AssetStructStatus::Loading { progress: loaded as f32 / total as f32 }
-                }
+                #(#handles_quotes)*
+                handles.into_iter().collect()
             }
         }
     };

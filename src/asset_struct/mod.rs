@@ -10,5 +10,8 @@ mod asset_struct;
 pub use asset_struct::*;
 
 pub mod prelude {
-    pub use super::{AssetStruct, AssetStructStatus};
+    pub use super::{
+        AddAssetStruct, AssetStruct, AssetStructFailedEvent, AssetStructLoadEvent,
+        AssetStructLoadedEvent, AssetStructState, AssetStructStatus, AssetStructUnloadEvent,
+    };
 }

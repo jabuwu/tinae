@@ -46,7 +46,14 @@ impl SubAssets {
     /// Remove a sub asset from the parent asset.
     pub fn remove(&mut self, parent: HandleId, child: HandleId) -> bool {
         if let Some(set) = self.map.get_mut(&parent) {
-            set.remove(&child)
+            if set.remove(&child) {
+                if set.len() == 0 {
+                    self.map.remove(&parent);
+                }
+                true
+            } else {
+                false
+            }
         } else {
             false
         }
