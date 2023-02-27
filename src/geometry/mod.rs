@@ -6,11 +6,13 @@ impl Plugin for GeometryPlugin {
     fn build(&self, _app: &mut App) {}
 }
 
+#[macro_use]
+mod shape;
+
 mod aabb;
 mod circle;
 mod colliding_with;
 mod contains_point;
-mod shape;
 
 pub use crate::geometry::shape::*;
 pub use aabb::*;

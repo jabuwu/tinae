@@ -62,43 +62,44 @@ impl TransformedShape {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use bevy::prelude::*;
-
-    use crate::geometry::prelude::*;
-
-    #[test]
-    fn shape_colliding_none() {
-        let a = Shape::None.at(Vec2::ZERO);
-        let b = Shape::None.at(Vec2::ZERO);
-        assert!(!a.colliding_with(&b));
+impl From<Circle> for TransformedShape {
+    fn from(circle: Circle) -> Self {
+        Self {
+            shape: Shape::Circle {
+                radius: circle.radius,
+            },
+            transform: Transform2::from_translation(circle.position),
+        }
     }
+}
 
-    #[test]
-    fn shape_colliding_circle_circle() {
-        let a = Shape::Circle { radius: 1. }.at(Vec2::ZERO);
-        let b = Shape::Circle { radius: 1. }.at(Vec2::splat(0.5));
-        let c = Shape::Circle { radius: 1. }.at(Vec2::splat(1.5));
-        assert!(a.colliding_with(&b));
-        assert!(!a.colliding_with(&c));
+impl From<Aabb> for TransformedShape {
+    fn from(aabb: Aabb) -> Self {
+        Self {
+            shape: Shape::Aabb { size: aabb.size },
+            transform: Transform2::from_translation(aabb.position),
+        }
     }
+}
 
-    #[test]
-    fn shape_colliding_circle_aabb() {
-        let a = Shape::Circle { radius: 1. }.at(Vec2::ZERO);
-        let b = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(0.2));
-        let c = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(1.5));
-        assert!(a.colliding_with(&b));
-        assert!(!a.colliding_with(&c));
-    }
-
-    #[test]
-    fn shape_colliding_aabb_aabb() {
-        let a = Shape::Aabb { size: Vec2::ONE }.at(Vec2::ZERO);
-        let b = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(0.5));
-        let c = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(1.5));
-        assert!(a.colliding_with(&b));
-        assert!(!a.colliding_with(&c));
-    }
+macro_rules! transformed_shape_to_shape {
+    ($transformed_shape:expr, $name:ident, $expr:expr, $none_expr:expr) => {
+        match &$transformed_shape.shape {
+            crate::geometry::Shape::None => $none_expr,
+            crate::geometry::Shape::Circle { radius } => {
+                let $name = crate::geometry::Circle {
+                    position: $transformed_shape.transform.translation,
+                    radius: *radius,
+                };
+                $expr
+            }
+            crate::geometry::Shape::Aabb { size } => {
+                let $name = crate::geometry::Aabb {
+                    position: $transformed_shape.transform.translation,
+                    size: *size,
+                };
+                $expr
+            }
+        }
+    };
 }

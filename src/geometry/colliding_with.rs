@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{Aabb, Circle};
+use super::{Aabb, Circle, TransformedShape};
 
 pub trait CollidingWith<T> {
     fn colliding_with(&self, other: &T) -> bool;
@@ -35,6 +35,29 @@ impl CollidingWith<Aabb> for Aabb {
             && self.position.x + self.size.x * 0.5 >= other.position.x - other.size.x * 0.5
             && self.position.y - self.size.y * 0.5 <= other.position.y + other.size.y * 0.5
             && self.position.y + self.size.y * 0.5 >= other.position.y - other.size.y * 0.5
+    }
+}
+
+impl CollidingWith<Circle> for TransformedShape {
+    fn colliding_with(&self, other: &Circle) -> bool {
+        self.colliding_with(&TransformedShape::from(*other))
+    }
+}
+
+impl CollidingWith<Aabb> for TransformedShape {
+    fn colliding_with(&self, other: &Aabb) -> bool {
+        self.colliding_with(&TransformedShape::from(*other))
+    }
+}
+
+impl CollidingWith<TransformedShape> for TransformedShape {
+    fn colliding_with(&self, other: &TransformedShape) -> bool {
+        transformed_shape_to_shape!(
+            self,
+            a,
+            transformed_shape_to_shape!(other, b, a.colliding_with(&b), return false),
+            false
+        )
     }
 }
 
@@ -94,6 +117,40 @@ mod test {
             position: Vec2::splat(1.5),
             size: Vec2::ONE,
         };
+        assert!(a.colliding_with(&b));
+        assert!(!a.colliding_with(&c));
+    }
+
+    #[test]
+    fn transformed_shape_colliding_none() {
+        let a = Shape::None.at(Vec2::ZERO);
+        let b = Shape::None.at(Vec2::ZERO);
+        assert!(!a.colliding_with(&b));
+    }
+
+    #[test]
+    fn transformed_shape_colliding_circle_circle() {
+        let a = Shape::Circle { radius: 1. }.at(Vec2::ZERO);
+        let b = Shape::Circle { radius: 1. }.at(Vec2::splat(0.5));
+        let c = Shape::Circle { radius: 1. }.at(Vec2::splat(1.5));
+        assert!(a.colliding_with(&b));
+        assert!(!a.colliding_with(&c));
+    }
+
+    #[test]
+    fn transformed_shape_colliding_circle_aabb() {
+        let a = Shape::Circle { radius: 1. }.at(Vec2::ZERO);
+        let b = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(0.2));
+        let c = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(1.5));
+        assert!(a.colliding_with(&b));
+        assert!(!a.colliding_with(&c));
+    }
+
+    #[test]
+    fn transformed_shape_colliding_aabb_aabb() {
+        let a = Shape::Aabb { size: Vec2::ONE }.at(Vec2::ZERO);
+        let b = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(0.5));
+        let c = Shape::Aabb { size: Vec2::ONE }.at(Vec2::splat(1.5));
         assert!(a.colliding_with(&b));
         assert!(!a.colliding_with(&c));
     }

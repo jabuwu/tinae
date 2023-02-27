@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{Aabb, Circle};
+use super::{Aabb, Circle, TransformedShape};
 
 pub trait ContainsPoint {
     fn contains_point(&self, point: Vec2) -> bool;
@@ -18,6 +18,12 @@ impl ContainsPoint for Aabb {
             && point.x < self.position.x + self.size.x * 0.5
             && point.y > self.position.y - self.size.y * 0.5
             && point.y < self.position.y + self.size.y * 0.5
+    }
+}
+
+impl ContainsPoint for TransformedShape {
+    fn contains_point(&self, point: Vec2) -> bool {
+        transformed_shape_to_shape!(self, shape, shape.contains_point(point), false)
     }
 }
 
@@ -43,6 +49,13 @@ mod test {
             position: Vec2::ZERO,
             size: Vec2::ONE,
         };
+        assert!(a.contains_point(Vec2::splat(0.25)));
+        assert!(!a.contains_point(Vec2::splat(0.75)));
+    }
+
+    #[test]
+    fn transformed_shape_contains_point_circle() {
+        let a = Shape::Aabb { size: Vec2::ONE }.at(Vec2::ZERO);
         assert!(a.contains_point(Vec2::splat(0.25)));
         assert!(!a.contains_point(Vec2::splat(0.75)));
     }
