@@ -12,6 +12,7 @@ impl Plugin for FlowPlugin {
     fn build(&self, app: &mut App) {
         app.configure_set(FlowSet::MechanicUpdate.before(FlowSet::EntityUpdate))
             .configure_set(FlowSet::EntityUpdate.before(FlowSet::EntitySpawn))
+            .configure_set(FlowSet::EntitySpawn.before(FlowSet::UiUpdate))
             .configure_set(
                 FlowSet::VisualUpdate
                     .after(CoreSet::FixedUpdate)
@@ -27,6 +28,7 @@ pub enum FlowSet {
     MechanicUpdate,
     EntityUpdate,
     EntitySpawn,
+    UiUpdate,
     VisualUpdate,
 }
 
