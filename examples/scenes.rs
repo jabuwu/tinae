@@ -14,15 +14,17 @@ fn main() {
         .add_plugins(TinaePlugins)
         .add_scenes::<AppScene>()
         .add_startup_system(setup)
-        .add_system_to_schedule(OnEnter(AppScene::Menu), menu_setup)
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
-            menu_update.in_set(OnUpdate(AppScene::Menu)),
+        .add_system(menu_setup.in_schedule(OnEnter(AppScene::Menu)))
+        .add_system(
+            menu_update
+                .in_schedule(CoreSchedule::FixedUpdate)
+                .in_set(OnUpdate(AppScene::Menu)),
         )
-        .add_system_to_schedule(OnEnter(AppScene::Game), game_setup)
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
-            game_update.in_set(OnUpdate(AppScene::Game)),
+        .add_system(game_setup.in_schedule(OnEnter(AppScene::Game)))
+        .add_system(
+            game_update
+                .in_schedule(CoreSchedule::FixedUpdate)
+                .in_set(OnUpdate(AppScene::Game)),
         )
         .run();
 }

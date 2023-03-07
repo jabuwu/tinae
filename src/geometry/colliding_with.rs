@@ -18,7 +18,7 @@ impl CollidingWith<Aabb> for Circle {
         let offset_from_corner = (relative_center).abs() - other.size * 0.5;
         offset_from_corner.x.max(offset_from_corner.y).min(0.)
             + (offset_from_corner.max(Vec2::ZERO)).length()
-            - self.radius
+            - self.radius * 0.5
             < 0.
     }
 }

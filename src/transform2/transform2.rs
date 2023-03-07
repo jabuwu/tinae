@@ -20,9 +20,9 @@ impl Plugin for Transform2Plugin {
                 .in_base_set(CoreSet::PostUpdate)
                 .before(TransformSystem::TransformPropagate),
         )
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             update_visual_transform2
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(Transform2System::TransformVisualPropagate)
                 .in_base_set(CoreFixedSet::PostUpdate),
         );
@@ -95,10 +95,10 @@ impl Depth {
     }
 }
 
-#[derive(Component, Debug, Clone, Copy, Deref, DerefMut)]
+#[derive(Default, Component, Debug, Clone, Copy, Deref, DerefMut)]
 pub struct VisualTransform2(pub Transform2);
 
-fn update_transform2(
+pub fn update_transform2(
     root_query: Query<Entity, Without<Parent>>,
     children_query: Query<&Children>,
     mut transform_query: Query<(

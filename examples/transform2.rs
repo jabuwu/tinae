@@ -7,7 +7,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system_to_schedule(CoreSchedule::FixedUpdate, movement)
+        .add_system(movement.in_schedule(CoreSchedule::FixedUpdate))
         .add_system(y_order)
         .run();
 }

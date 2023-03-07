@@ -17,35 +17,35 @@ fn main() {
         .add_fixed_event::<PlayerSpawnEvent>()
         .add_fixed_event::<EnemySpawnEvent>()
         .add_startup_system(setup.in_set(EventSet::<PlayerSpawnEvent>::Sender))
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             player_spawn
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(ExampleSystem::PlayerSpawn)
                 .in_base_set(FlowSet::EntitySpawn)
                 .before(EventSet::<PlayerSpawnEvent>::Sender),
         )
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             player_update
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(ExampleSystem::PlayerUpdate)
                 .in_base_set(FlowSet::EntityUpdate),
         )
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             enemy_spawn
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(ExampleSystem::EnemySpawn)
                 .in_base_set(FlowSet::EntitySpawn)
                 .before(EventSet::<PlayerSpawnEvent>::Sender),
         )
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             enemy_update
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(ExampleSystem::EnemyUpdate)
                 .in_base_set(FlowSet::EntityUpdate),
         )
-        .add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        .add_system(
             enemy_spawns
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(ExampleSystem::EnemySpawns)
                 .in_base_set(FlowSet::MechanicUpdate)
                 .in_set(EventSet::<EnemySpawnEvent>::Sender),

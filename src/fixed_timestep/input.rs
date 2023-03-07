@@ -2,7 +2,7 @@ use std::hash::Hash;
 
 use bevy::{input::InputSystem, prelude::*, reflect::Reflect};
 
-use super::ClearFlag;
+use super::CoreFixedSet;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemSet)]
 pub struct FixedInputSystem;
@@ -13,18 +13,18 @@ pub trait AddFixedInput {
 
 impl AddFixedInput for App {
     fn add_fixed_input<T: Copy + Eq + Hash + Send + Sync + 'static>(&mut self) -> &mut Self {
-        self.init_resource::<ClearFlag<Input<T>>>()
-            .init_resource::<FixedInput<T>>()
+        self.init_resource::<FixedInput<T>>()
             .add_system(
                 update_fixed_input::<T>
                     .in_base_set(CoreSet::PreUpdate)
                     .after(InputSystem),
             )
-            .add_system_to_schedule(
-                CoreSchedule::FixedUpdate,
-                set_clear_fixed_input_flag::<T>.in_set(FixedInputSystem),
-            )
-            .add_system(clear_fixed_input::<T>.in_base_set(CoreSet::Last));
+            .add_system(
+                set_clear_fixed_input_flag::<T>
+                    .in_schedule(CoreSchedule::FixedUpdate)
+                    .in_set(FixedInputSystem)
+                    .in_base_set(CoreFixedSet::PostUpdate),
+            );
         self
     }
 }
@@ -63,21 +63,7 @@ fn update_fixed_input<T: Copy + Eq + Hash + Send + Sync + 'static>(
 }
 
 fn set_clear_fixed_input_flag<T: Copy + Eq + Hash + Send + Sync + 'static>(
-    mut clear_fixed_input: ResMut<ClearFlag<Input<T>>>,
     mut fixed_input: ResMut<FixedInput<T>>,
 ) {
-    if clear_fixed_input.clear {
-        fixed_input.clear();
-    }
-    clear_fixed_input.clear = true;
-}
-
-fn clear_fixed_input<T: Copy + Eq + Hash + Send + Sync + 'static>(
-    mut fixed_input: ResMut<FixedInput<T>>,
-    mut clear_fixed_input: ResMut<ClearFlag<Input<T>>>,
-) {
-    if clear_fixed_input.clear {
-        fixed_input.clear();
-    }
-    clear_fixed_input.clear = false;
+    fixed_input.clear();
 }

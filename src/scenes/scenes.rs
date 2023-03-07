@@ -10,7 +10,7 @@ impl AddScenes for App {
     fn add_scenes<T: States>(&mut self) -> &mut Self {
         self.add_state::<T>();
         for scene in T::variants() {
-            self.add_system_to_schedule(OnExit(scene), clear_nonpersistent_entities);
+            self.add_system(clear_nonpersistent_entities.in_schedule(OnExit(scene)));
         }
         self
     }

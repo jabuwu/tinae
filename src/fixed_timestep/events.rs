@@ -10,7 +10,7 @@ impl AddFixedEvent for App {
     fn add_fixed_event<T: Event>(&mut self) -> &mut Self {
         self.init_resource::<ClearFlag<Events<T>>>()
             .init_resource::<Events<T>>()
-            .add_system_to_schedule(CoreSchedule::FixedUpdate, set_clear_fixed_events_flag::<T>)
+            .add_system(set_clear_fixed_events_flag::<T>.in_schedule(CoreSchedule::FixedUpdate))
             .add_system(clear_fixed_events::<T>.in_base_set(CoreSet::Last));
         self
     }

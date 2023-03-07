@@ -6,7 +6,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system_to_schedule(CoreSchedule::FixedUpdate, movement)
+        .add_system(movement.in_schedule(CoreSchedule::FixedUpdate))
         .run();
 }
 
@@ -65,7 +65,7 @@ fn setup(
         },
         Transform2::from_xy(-150., 125.).with_scale(Vec2::splat(150.)),
         Collidable {
-            shape: Shape::Circle { radius: 150. * 0.5 },
+            shape: Shape::Circle { radius: 150. },
         },
     ));
 }

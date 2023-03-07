@@ -4,7 +4,7 @@ use crate::transform2::Transform2;
 
 use super::{Aabb, Circle, CollidingWith};
 
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Clone, Debug)]
 pub enum Shape {
     #[default]
     None,
@@ -25,6 +25,7 @@ impl Shape {
     }
 }
 
+#[derive(Default, Copy, Clone, Debug)]
 pub struct TransformedShape {
     pub transform: Transform2,
     pub shape: Shape,

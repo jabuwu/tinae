@@ -13,9 +13,9 @@ pub struct TimeToLivePlugin;
 
 impl Plugin for TimeToLivePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_schedule(
-            CoreSchedule::FixedUpdate,
+        app.add_system(
             time_to_live_update
+                .in_schedule(CoreSchedule::FixedUpdate)
                 .in_set(TimeToLiveSystem::Update)
                 .in_base_set(CoreFixedSet::PostUpdate),
         );

@@ -8,7 +8,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(TinaePlugins)
         .add_startup_system(setup)
-        .add_system_to_schedule(CoreSchedule::FixedUpdate, spawn)
+        .add_system(spawn.in_schedule(CoreSchedule::FixedUpdate))
         .run();
 }
 
